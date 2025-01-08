@@ -30,7 +30,7 @@ jobs:
       # Step 5: 部署到远程服务器
       - name: Deploy to server via SSH
         env:
-          HOST: ${{ 1.92.114.25 }}  # 服务器的 IP 地址
+          HOST: 1.92.114.25  # 服务器的 IP 地址
           # USERNAME: ${{ secrets.USERNAME }}  # 服务器的 SSH 用户名
           # SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}  # SSH 私钥
         run: |
