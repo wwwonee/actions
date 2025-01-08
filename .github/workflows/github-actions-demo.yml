@@ -1,18 +1,54 @@
-name: GitHub Actions Demo
-run-name: ${{ github.actor }} is testing out GitHub Actions 🚀
-on: [push]
+name: Deploy to Server
+on:
+  push:
+    branches:
+      - main  # 触发自动部署的分支，这里是主分支
+
 jobs:
-  Explore-GitHub-Actions:
-    runs-on: ubuntu-latest
+  deploy:
+    runs-on: ubuntu-latest  # 使用 GitHub 提供的 Ubuntu 环境
+
     steps:
-      - run: echo "🎉 The job was automatically triggered by a ${{ github.event_name }} event."
-      - run: echo "🐧 This job is now running on a ${{ runner.os }} server hosted by GitHub!"
-      - run: echo "🔎 The name of your branch is ${{ github.ref }} and your repository is ${{ github.repository }}."
-      - name: Check out repository code
+      # Step 1: 检出代码
+      - name: Checkout code
         uses: actions/checkout@v4
-      - run: echo "💡 The ${{ github.repository }} repository has been cloned to the runner."
-      - run: echo "🖥️ The workflow is now ready to test your code on the runner."
-      - name: List files in the repository
+
+      # Step 2: 设置 Node.js 环境 (如果是其他语言，可根据需求调整)
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16'  # 设置 Node.js 版本
+
+      # Step 3: 安装依赖
+      - name: Install dependencies
+        run: npm install
+
+      # Step 4: 构建项目（可选）
+      - name: Build the project
+        run: npm run build
+
+      # Step 5: 部署到远程服务器
+      - name: Deploy to server via SSH
+        env:
+          HOST: ${{ secrets.HOST }}  # 服务器的 IP 地址
+          USERNAME: ${{ secrets.USERNAME }}  # 服务器的 SSH 用户名
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}  # SSH 私钥
         run: |
-          ls ${{ github.workspace }}
-      - run: echo "🍏 This job's status is ${{ job.status }}."
+          # 安装 SSH 客户端（如果是 Ubuntu 环境，可能需要）
+          sudo apt-get install -y openssh-client
+          
+          # 配置 SSH 私钥
+          mkdir -p ~/.ssh
+          echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+
+          # 禁用 SSH 主机密钥检查（可选，但对于自动化部署可能需要）
+          echo -e "Host *\n  StrictHostKeyChecking no\n  UserKnownHostsFile=/dev/null" > ~/.ssh/config
+
+          # 执行 SSH 命令部署代码（例如拉取最新的代码或重启应用）
+          ssh -o StrictHostKeyChecking=no $USERNAME@$HOST << 'EOF'
+            cd /path/to/your/app
+            git pull origin main
+            npm install
+            pm2 restart your-app-name  # 假设使用 PM2 作为进程管理工具
+          EOF
