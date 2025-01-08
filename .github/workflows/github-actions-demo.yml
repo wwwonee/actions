@@ -30,9 +30,9 @@ jobs:
       # Step 5: 部署到远程服务器
       - name: Deploy to server via SSH
         env:
-          HOST: ${{ secrets.HOST }}  # 服务器的 IP 地址
-          USERNAME: ${{ secrets.USERNAME }}  # 服务器的 SSH 用户名
-          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}  # SSH 私钥
+          HOST: ${{ 1.92.114.25 }}  # 服务器的 IP 地址
+          # USERNAME: ${{ secrets.USERNAME }}  # 服务器的 SSH 用户名
+          # SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}  # SSH 私钥
         run: |
           # 安装 SSH 客户端（如果是 Ubuntu 环境，可能需要）
           sudo apt-get install -y openssh-client
