@@ -30,7 +30,7 @@ jobs:
       # Step 5: 部署到服务器通过 HTTP 接口
       - name: Deploy to server via HTTP
         env:
-          DEPLOY_URL: http://1.92.114.25:6624  # 部署接口的 URL
+          DEPLOY_URL: http://1.92.114.25:6624/deploy/di  # 部署接口的 URL
           DEPLOY_TOKEN: ${{ secrets.DEPLOY_TOKEN }}  # 部署接口的认证 Token
         run: |
           # 通过 HTTP POST 请求触发部署
