@@ -27,28 +27,17 @@ jobs:
       - name: Build the project
         run: npm run build
 
-      # Step 5: 部署到远程服务器
-      - name: Deploy to server via SSH
+      # Step 5: 部署到服务器通过 HTTP 接口
+      - name: Deploy to server via HTTP
         env:
-          HOST: 1.92.114.25  # 服务器的 IP 地址
-          # USERNAME: ${{ secrets.USERNAME }}  # 服务器的 SSH 用户名
-          # SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}  # SSH 私钥
+          DEPLOY_URL: http://1.92.114.25:3000/deploy  # 部署接口的 URL
+          DEPLOY_TOKEN: ${{ secrets.DEPLOY_TOKEN }}  # 部署接口的认证 Token
         run: |
-          # 安装 SSH 客户端（如果是 Ubuntu 环境，可能需要）
-          sudo apt-get install -y openssh-client
-          
-          # 配置 SSH 私钥
-          mkdir -p ~/.ssh
-          echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
-
-          # 禁用 SSH 主机密钥检查（可选，但对于自动化部署可能需要）
-          echo -e "Host *\n  StrictHostKeyChecking no\n  UserKnownHostsFile=/dev/null" > ~/.ssh/config
-
-          # 执行 SSH 命令部署代码（例如拉取最新的代码或重启应用）
-          ssh -o StrictHostKeyChecking=no $USERNAME@$HOST << 'EOF'
-            cd /path/to/your/app
-            git pull origin main
-            npm install
-            pm2 restart your-app-name  # 假设使用 PM2 作为进程管理工具
-          EOF
+          # 通过 HTTP POST 请求触发部署
+          curl -X POST $DEPLOY_URL \
+            -H "Authorization: Bearer $DEPLOY_TOKEN" \
+            -H "Content-Type: application/json" \
+            -d '{
+              "branch": "main",
+              "action": "deploy"
+            }'
